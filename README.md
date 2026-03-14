@@ -1,22 +1,17 @@
 # Script para cargar horas automáticamente
 Este repositorio contiene un script en `cargarHoras.js` que automatiza la carga de horas en la plataforma de registro.
-Antes de ejecutarlo, solo es necesario modificar el plan diario `PLAN_DIA` para ajustar las actividades, horas y comentarios que se cargarán automáticamente.
+Antes de ejecutarlo, es necesario modificar el plan diario `PLAN_DIA` para ajustar las actividades, horas, comentarios que se cargarán automáticamente y modificar el `DIA_NO_LABORAL`.
 
 ## Uso
 1. Ingresar a la página donde se cargan las horas.
-
 2. Abrir la consola del navegador.
-
 3. Abrir el archivo `cargarHoras.js`.
-
 4. Modificar la constante `PLAN_DIA` según tus necesidades.
-
-5. Copiar todo el contenido del archivo.
-
-6. Pegar el script en la consola y presionar Enter.
+5. Modificar la constante `DIA_NO_LABORAL` según tus necesidades.
+6. Copiar todo el contenido del archivo.
+7. Pegar el script en la consola y presionar Enter.
 
 ## PLAN_DIA (actividades a cargar por día)
-Este es el único bloque del script que debe modificarse antes de ejecutarlo.
 Aca definis qué actividades se cargarán, cuántas horas y qué comentario tendrá cada una.
 ```js
 const PLAN_DIA = [
@@ -39,6 +34,20 @@ const PLAN_DIA = [
 > [!TIP]
 > Podes agregar, borrar o modificar elementos de la constante según tus necesidades.
 
+## DIA_NO_LABORAL (día a omitir)
+Esta variable define qué día de la semana debe excluirse del registro automático.
+Por defecto se omite el sábado.
+
+```js
+const DIA_NO_LABORAL = ENUM_DAYS.SABADO
+```
+
+Puedes cambiarlo por cualquier otro valor de ENUM_DAYS, por ejemplo:
+```js
+const DIA_NO_LABORAL = ENUM_DAYS.DOMINGO
+```
+
+
 ## ENUM_DAYS (días de la semana)
 ```js
 const ENUM_DAYS = {
@@ -51,19 +60,6 @@ const ENUM_DAYS = {
     SABADO: 6,
 }
 
-```
-
-## DIA_NO_LABORAL (día a omitir)
-Esta variable define qué día de la semana debe excluirse del registro automático.
-Por defecto se omite el sábado.
-
-```js
-const DIA_NO_LABORAL = ENUM_DAYS.SABADO
-```
-
-Puedes cambiarlo por cualquier otro valor de ENUM_DAYS, por ejemplo:
-```js
-const DIA_NO_LABORAL = ENUM_DAYS.DOMINGO
 ```
 
 ## ACTIVIDADES (catálogo de actividades)
