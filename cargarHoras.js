@@ -1,48 +1,3 @@
-const ENUM_DAYS = {
-	DOMINGO: 0,
-	LUNES: 1,
-	MARTES: 2,
-	MIERCOLES: 3,
-	JUEVES: 4,
-	VIERNES: 5,
-	SABADO: 6,
-}
-const ACTIVIDADES = {
-	IMPLEMENTACION: 1210184,
-	OTROS: 1210191,
-	ACTUALIZACIONES_REPOSITORIO: 1210169,
-	ADMINISTRACION: 1210170,
-	ADMON_CONFIGURACION: 1210171,
-	ANALISIS: 1210172,
-	ASESORIA: 1210173,
-	ASESORIA_PROYECTOS: 1210174,
-	AUDITORIA: 1210175,
-	CAPACITACION: 1210176,
-	CAPACITACION_OPERACIONES: 1210177,
-	DESARROLLO: 1210178,
-	DISENO: 1210179,
-	DOCUMENTACION: 1210180,
-	ENTREVISTAS: 1210181,
-	EVALUACIONES_SCAMPI: 1210182,
-	HORAS_STAND_BY: 1210183,
-	INICIATIVAS: 1210185,
-	INNOVACIONES: 1210186,
-	LIBERACION: 1210187,
-	MANTENIMIENTO: 1210188,
-	MANTENIMIENTO_AMMI: 1210189,
-	METRICAS: 1210190,
-	PREANALISIS: 1210192,
-	PRESENTACION: 1210193,
-	PREVENTA: 1210194,
-	PRUEBAS: 1210195,
-	REUNIONES: 1210196,
-	REVISION_DOCUMENTAL: 1210197,
-	SEGUIMIENTO: 1210198,
-	SUPERVISION: 1210199,
-	VENTAS: 1210200,
-	VACACIONES: 1210201,
-}
-
 const HORAS = {
 	H30: '0.5',
 	H1: '1',
@@ -55,22 +10,33 @@ const HORAS = {
 	H7: '7',
 	H8: '8',
 }
+const ENUM_DAYS = {
+    DOMINGO: 0,
+    LUNES: 1,
+    MARTES: 2,
+    MIERCOLES: 3,
+    JUEVES: 4,
+    VIERNES: 5,
+    SABADO: 6,
+}
 
-const PLAN_DIA = [
-	{
-		actividad: ACTIVIDADES.OTROS,
-		horas: HORAS.H30,
-		comentario: 'Break',
-	},
-	{
-		actividad: ACTIVIDADES.OTROS,
-		horas: HORAS.H2_5,
-	},
-	{
-		actividad: ACTIVIDADES.IMPLEMENTACION,
-		horas: HORAS.H3,
-	},
-]
+function crearPlanDia(ACTIVIDADES) {
+	return [
+		{
+			actividad: ACTIVIDADES.OTROS,
+			horas: HORAS.H30,
+			comentario: 'Break',
+		},
+		{
+			actividad: ACTIVIDADES.OTROS,
+			horas: HORAS.H2_5,
+		},
+		{
+			actividad: ACTIVIDADES.IMPLEMENTACION,
+			horas: HORAS.H3,
+		},
+	]
+}
 
 const DIA_NO_LABORAL = ENUM_DAYS.SABADO
 
@@ -96,6 +62,31 @@ function esperarElemento(selector, timeout = 5000) {
 	})
 }
 
+function limpiar(texto) {
+	return texto
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.toUpperCase()
+		.replace(/[^A-Z0-9]+/g, '_')
+		.replace(/^_|_$/g, '')
+}
+
+async function obtenerActividades() {
+	const select = await esperarElemento('#cmbActividades')
+	const opciones = [...select.options]
+
+	const ACTIVIDADES = {}
+
+	opciones.forEach(opt => {
+		if (opt.value === "0") return
+
+		const key = limpiar(opt.textContent)
+		ACTIVIDADES[key] = opt.value
+	})
+
+	return ACTIVIDADES
+}
+
 async function registrarActividad(actividadId, horas, comentario = '') {
 	const actividadSelect = await esperarElemento('#cmbActividades')
 	actividadSelect.value = actividadId
@@ -112,23 +103,21 @@ async function registrarActividad(actividadId, horas, comentario = '') {
 
 	document.querySelector('#btnOk').click()
 
-	await sleep(1200)
+	await sleep(1000)
 }
 
-async function cargarMes() {
+async function cargarMes(plan) {
 	const dias = [...document.querySelectorAll('.ui-datepicker-calendar td')]
 		.filter(
 			(td) =>
-				td.cellIndex !== DIA_NO_LABORAL && // excluir días no laborables
+				td.cellIndex !== DIA_NO_LABORAL &&
 				!td.classList.contains('ui-datepicker-other-month') &&
 				td.innerText.trim() !== ''
 		)
 		.map((td) => td.innerText.trim())
 
 	for (const diaNumero of dias) {
-		const celda = [
-			...document.querySelectorAll('.ui-datepicker-calendar td'),
-		].find(
+		const celda = [...document.querySelectorAll('.ui-datepicker-calendar td')].find(
 			(td) =>
 				td.innerText.trim() === diaNumero &&
 				td.cellIndex !== DIA_NO_LABORAL &&
@@ -141,19 +130,26 @@ async function cargarMes() {
 
 		celda.click()
 
-		await sleep(900)
+		await sleep(700)
 
-		for (const actividad of PLAN_DIA) {
+		for (const actividad of plan) {
 			await registrarActividad(
 				actividad.actividad,
 				actividad.horas,
 				actividad.comentario || ''
 			)
 		}
-		await sleep(800)
+
+		await sleep(600)
 	}
 
 	console.log('Carga completa terminada')
 }
 
-cargarMes()
+async function iniciar() {
+	const ACTIVIDADES = await obtenerActividades()
+	const PLAN_DIA = crearPlanDia(ACTIVIDADES)
+	await cargarMes(PLAN_DIA)
+}
+
+iniciar()
