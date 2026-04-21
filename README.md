@@ -6,7 +6,7 @@ Antes de ejecutarlo, es necesario modificar el plan diario `PLAN_DIA` para ajust
 1. Ingresar a la página donde se cargan las horas.
 2. Abrir la consola del navegador.
 3. Abrir el archivo `cargarHoras.js`.
-4. Modificar la constante `PLAN_DIA` según tus necesidades.
+4. Modificar la función `crearPlanDia` según tus necesidades.
 5. Modificar la constante `DIA_NO_LABORAL` según tus necesidades.
 6. Copiar todo el contenido del archivo.
 7. Pegar el script en la consola y presionar Enter.
@@ -14,23 +14,25 @@ Antes de ejecutarlo, es necesario modificar el plan diario `PLAN_DIA` para ajust
 ## PLAN_DIA (actividades a cargar por día)
 Aca definis qué actividades se cargarán, cuántas horas y qué comentario tendrá cada una.
 ```js
-const PLAN_DIA = [
-    {
-        actividad: ACTIVIDADES.OTROS,
-        horas: HORAS.H30,
-        comentario: 'Break',
-    },
-    {
-        actividad: ACTIVIDADES.OTROS,
-        horas: HORAS.H2_5,
-    },
-    {
-        actividad: ACTIVIDADES.IMPLEMENTACION,
-        horas: HORAS.H3,
-    },
-]
-
+function crearPlanDia(ACTIVIDADES) {
+	return [
+		{
+			actividad: ACTIVIDADES.OTROS,
+			horas: HORAS.H30,
+			comentario: 'Break',
+		},
+		{
+			actividad: ACTIVIDADES.OTROS,
+			horas: HORAS.H2_5,
+		},
+		{
+			actividad: ACTIVIDADES.IMPLEMENTACION,
+			horas: HORAS.H3,
+		},
+	]
+}
 ```
+
 > [!TIP]
 > Podes agregar, borrar o modificar elementos de la constante según tus necesidades.
 
@@ -63,12 +65,40 @@ const ENUM_DAYS = {
 ```
 
 ## ACTIVIDADES (catálogo de actividades)
-```js
-const ACTIVIDADES = {
-    IMPLEMENTACION: 911278,
-    OTROS: 911285,
-    ...
-}
+```bash
+ACTUALIZACIONES A REPOSITORIO
+ADMINISTRACION
+ADMON DE LA CONFIGURACION
+ANALISIS
+ASESORIA
+ASESORIA A PROYECTOS
+AUDITORIA
+CAPACITACION
+CAPACITACION A OPERACIONES
+DESARROLLO
+DISEÑO
+DOCUMENTACION
+ENTREVISTAS
+EVALUACIONES (SCAMPI)
+HORAS STAND BY
+IMPLEMENTACION
+INICIATIVAS
+INNOVACIONES
+LIBERACION
+MANTENIMIENTO
+MANTENIMIENTO AMMI
+METRICAS
+OTROS
+PREANALISIS
+PRESENTACION
+PREVENTA
+PRUEBAS
+REUNIONES
+REVISION DOCUMENTAL
+SEGUIMIENTO
+SUPERVISION
+VACACIONES
+VENTAS
 ```
 
 ## HORAS (catálogo de horas disponibles)
