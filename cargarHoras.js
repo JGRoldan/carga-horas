@@ -21,33 +21,33 @@ const ENUM_DAYS = {
 }
 const DIA_NO_LABORAL = ENUM_DAYS.SABADO
 
-const PLAN = [
-	{
-		proyecto: 'drive',
-		dias: [1, 2, 3, 15], // solo estos días del mes
-		actividad: (A) => A.OTROS,
-		horas: HORAS.H2_5,
-	},
-	{
-		proyecto: 'claro cloud',
-		dias: [],
-		actividad: (A) => A.IMPLEMENTACION,
-		horas: HORAS.H3,
-	},
-	{
-		proyecto: 'claro cloud',
-		dias: [],
-		actividad: (A) => A.OTROS,
-		horas: HORAS.H30,
-		comentario: 'Break',
-	},
-	{
-		proyecto: 'claro cloud',
-		dias: [],
-		actividad: (A) => A.OTROS,
-		horas: HORAS.H2_5,
-	},
-]
+const PLAN = {
+	claro_cloud: [
+		{
+			dias: [],
+			actividad: (A) => A.IMPLEMENTACION,
+			horas: HORAS.H3,
+		},
+		{
+			dias: [],
+			actividad: (A) => A.OTROS,
+			horas: HORAS.H30,
+			comentario: 'Break',
+		},
+		{
+			dias: [],
+			actividad: (A) => A.OTROS,
+			horas: HORAS.H2_5,
+		},
+	],
+	drive: [
+		{
+			dias: [1, 3, 15],
+			actividad: (A) => A.OTROS,
+			horas: HORAS.H1,
+		},
+	],
+}
 
 async function sleep(ms) {
 	return new Promise((r) => setTimeout(r, ms))
@@ -135,7 +135,7 @@ async function registrarActividad(actividadId, horas, comentario = '') {
 	comentarioBox.value = comentario
 	await sleep(200)
 	document.querySelector('#btnOk').click()
-	await sleep(1000)
+	await sleep(700)
 }
 
 // Carga las actividades de UN proyecto para los días que correspondan
@@ -182,39 +182,42 @@ async function cargarMesParaProyecto(actividadesDeDia) {
 				actividad.comentario || ''
 			)
 		}
-		await sleep(600)
+		await sleep(700)
 	}
 }
 
 async function iniciar(plan) {
-	const ACTIVIDADES = await obtenerActividades()
 	const proyectos = await obtenerProyectos()
 
 	const porProyecto = new Map()
 
-	for (const entrada of plan) {
-		const match = encontrarProyecto(proyectos, entrada.proyecto)
+	for (const [queryProyecto, actividades] of Object.entries(plan)) {
+		const match = encontrarProyecto(proyectos, queryProyecto)
 		if (!match) {
-			console.warn(`⚠️ Proyecto no encontrado: "${entrada.proyecto}"`)
+			console.warn(`⚠️ Proyecto no encontrado: "${queryProyecto}"`)
 			continue
 		}
-		if (!porProyecto.has(match.value)) {
-			porProyecto.set(match.value, {
-				label: match.label,
-				actividades: [],
-			})
-		}
-		porProyecto.get(match.value).actividades.push({
-			...entrada,
-			actividad: entrada.actividad(ACTIVIDADES),
-			dias: entrada.dias || [],
+		// Guardamos las entradas SIN resolver actividad todavía
+		porProyecto.set(match.value, {
+			label: match.label,
+			entradas: actividades,
 		})
 	}
 
-	for (const [proyectoId, { label, actividades }] of porProyecto) {
+	for (const [proyectoId, { label, entradas }] of porProyecto) {
 		console.log(`\n🚀 Proyecto: ${label}`)
 
 		await seleccionarProyecto(proyectoId)
+		await sleep(600)
+		const ACTIVIDADES = await obtenerActividades()
+
+		// Resolvemos los IDs con las actividades correctas
+		const actividades = entradas.map((entrada) => ({
+			...entrada,
+			actividad: entrada.actividad(ACTIVIDADES),
+			dias: entrada.dias || [],
+		}))
+
 		await cargarMesParaProyecto(actividades)
 	}
 
